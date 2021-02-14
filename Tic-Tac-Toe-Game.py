@@ -6,8 +6,8 @@ The grid will look like this:
   2,0 | 2,1 | 2,2
 '''
 N = 3
-#initializing the grid for first usage
-grid = [[" "]*N,[" "]*N,[" "]*N]
+
+grid = []
 
 #This function prints the grid of Tic-Tac-Toe as the game progresses
 def print_grid():
@@ -139,8 +139,10 @@ def set_cell(i, j, mark):
 
 #This function clears the grid
 def grid_clear():
+    grid.clear()
+
     for i in range(N):
-        grid[i] = ["."]*N
+        grid.append(["."]*N)
     
 
 #MAIN FUNCTION
