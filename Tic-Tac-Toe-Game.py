@@ -6,9 +6,8 @@ The grid will look like this:
   2,0 | 2,1 | 2,2
 '''
 N = 3
-
+marks = ['X','O']
 grid = []
-
 #This function prints the grid of Tic-Tac-Toe as the game progresses
 def print_grid():
     print("Player 1: X  vs  Player 2: O")
@@ -22,7 +21,7 @@ def print_grid():
         print('--' + '---' * N + '--')
 
 #This function checks the existence of any winning row
-def check_rows():
+def check_rows(grid):
     for i in range(N):
         for j in range(N-1):
             if grid[i][j] == grid[i][j+1] and grid[i][j] in ['X','O']:
@@ -31,9 +30,10 @@ def check_rows():
                 break
         else:
             return True
+    return False
 
 #This function checks the existence of any winning column
-def check_cols():
+def check_cols(grid):
     for i in range(N):
         for j in range(N-1):
             if grid[j][i] == grid[j+1][i] and grid[j][i] in ['X','O']:
@@ -42,9 +42,10 @@ def check_cols():
                 break
         else:
             return True
+    return False
 
 #This function checks the existence of any winning diagonal
-def check_diags():
+def check_diags(grid):
     for i in range(N-1):
         if grid[i][i] == grid[i+1][i+1] and grid[i][i] in ['X','O']:
             continue
@@ -52,7 +53,7 @@ def check_diags():
             break
     else:
         return True
-    j = 2
+    j = N-1
     for i in range(N-1):
         if grid[i][j] == grid[i+1][j-1] and grid[i][j] in ['X','O']:
             j -= 1
@@ -61,86 +62,62 @@ def check_diags():
             break
     else:
         return True
-
+    return False
 #This function checks if row or column or diagonal is full with same characters
 def check_win():
-    if check_rows() or check_cols() or check_diags():
+    if check_rows(grid) or check_cols(grid) or check_diags(grid):
         return True
-    
-#This function checks if there are any empty spaces 
-#if the grid has empty spaces the fuction will count them
-def count_empty_spaces():
-    count = 0
-    x = 0
-    y = 0
-    for i in range(N):
-        for j in range(N):
-            if grid[i][j] == ".":
-                x,y = i,j
-                count+=1
-    return count,x,y
-
-#This function checks the row with this empty gap if it is a winning row 
-def check_if_win_row(x,y,mark):
-    if grid[x][y-1] == grid[x][y-2] and grid[x][y-1] == mark :
-        return True 
-
-#This function checks the column with this empty gap if it is a winning column 
-def check_if_win_col(x,y,mark):
-    if grid[x-1][y] == grid[x-2][y] and grid[x-1][y] == mark :
-        return True 
-
-#This function checks the diagonal with this empty gap if it is a winning diagonal 
-def check_if_win_diag(x,y,mark):
-    if ( (x == 0 or x == 2) and (y == 0 or y == 2) ) or (x == 1 and y == 1) :
-        if x == y and (x == 0 or x == 2):
-            if grid[x-1][y-1] == grid[x-2][y-2] and grid[x-1][y-1] == mark :
-                return True
-        elif x == y and x == 1 :
-            if grid[x+1][y+1] == grid[x-1][y-1] and grid[x+1][y+1] == mark :
-                return True
-            elif grid[x-1][y+1] == grid[x+1][y-1] and grid[x-1][y+1] == mark :
-                return True
-        else :
-            if grid[y][x] == grid[1][1] and grid[y][x] == mark :
-                return True
-
-#This function checks if row or column or diagonal is full with same characters
-def check_tie(mark):
-    if mark == 'O' :
-        mark = 'X'
-    else :
-        mark = 'O'
-
-    count , x ,y = count_empty_spaces()
-    if count == 1:
-        if check_if_win_row(x,y,mark) or check_if_win_col(x,y,mark) or check_if_win_diag(x,y,mark):
-            return False
-        else :
-            return True
-    else :
+    else:
         return False
+#This function creates a copy from the main array and set the marks to the spaces
+def list_try(mark):
+    temp=[]
+    for row in range(N):
+        l = []
+        for col in range(N):
+            if grid[row][col] == ".":
+                l.append(mark)
+            else:
+                l.append(grid[row][col])
+        temp.append(l)
+    return temp
+#This function check if there is a tie status or not
+def check_tie_player(mark):
+    temp = list_try(mark)
+    if check_rows(temp) or check_cols(temp) or check_diags(temp):
+        return False
+    else:
+        return True
+        
+#This function checks if row or column or diagonal is full with same characters
+def check_tie():
+    all_tie = True
+    for i in range(len(marks)):
+        if not check_tie_player(marks[i]):
+            all_tie = False
+    return all_tie
     
-
 #This function checks if given cell is empty or not 
 def check_empty(i, j): 
     if grid[i][j] == ".":
         return True
+    else:
+        return False
 
 #This function checks if given position is valid or not 
 def check_valid_position(i, j):
     if 0 <= i < N and  0 <= j < N :
         return True
+    else:
+        return False
 
 #This function sets a value to a cell
 def set_cell(i, j, mark):
     grid[i][j] = mark
-    
 
 #This function clears the grid
 def grid_clear():
     grid.clear()
-
     for i in range(N):
         grid.append(["."]*N)
     
@@ -170,7 +147,7 @@ def play_game():
             print('Congrats, Player %s is won!' % mark)
             break
         #Check if the state of the grid has a tie state
-        if check_tie(mark):
+        if check_tie():
             #Prints the grid
             print_grid()
             print("Woah! That's a tie!")
